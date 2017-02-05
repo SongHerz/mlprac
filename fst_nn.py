@@ -17,9 +17,12 @@ def add_layer(inputs, in_size, out_size, activation_funciton=None):
 
 
 x_data = np.linspace(-1, 1, 300)[:, np.newaxis]
+# FIXME: May control random seed to make data stable
+# in order to compare a lot of parameters
 noise = np.random.normal(0, 0.05, x_data.shape)
 y_data = np.square(x_data) - 0.5 + noise
 
+# Shape of None means any shape is acceptable
 xs = tf.placeholder(tf.float32, [None, 1])
 ys = tf.placeholder(tf.float32, [None, 1])
 
@@ -27,8 +30,11 @@ ys = tf.placeholder(tf.float32, [None, 1])
 l1 = add_layer(xs, 1, 10, activation_funciton=tf.nn.relu)
 prediction = add_layer(l1, 10, 1, activation_funciton=None)
 
-loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction),
-                                    reduction_indices=[1]))
+# tf.reduce_sum(..., axis=[1]) convert
+# 2-d array from tf.square(...) to
+# 1-d array
+# The key is `axis=[1]`
+loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction), axis=[1]))
 
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
@@ -42,3 +48,6 @@ with tf.Session() as sess:
         if i % 50 == 0:
             print(sess.run(loss, feed_dict={xs: x_data, ys: y_data}))
 
+    # Check some intermediate result
+    print(sess.run(tf.square(ys - prediction), feed_dict={xs: x_data, ys: y_data}))
+    print(sess.run(tf.reduce_sum(tf.square(ys - prediction), axis=[1]), feed_dict={xs: x_data, ys: y_data}))
