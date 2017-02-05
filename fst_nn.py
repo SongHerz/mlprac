@@ -22,7 +22,7 @@ x_data = np.linspace(-1, 1, 300)[:, np.newaxis]
 noise = np.random.normal(0, 0.05, x_data.shape)
 y_data = np.square(x_data) - 0.5 + noise
 
-# Shape of None means any shape is acceptable
+# None means any sample can be given.
 xs = tf.placeholder(tf.float32, [None, 1])
 ys = tf.placeholder(tf.float32, [None, 1])
 
@@ -34,6 +34,8 @@ prediction = add_layer(l1, 10, 1, activation_funciton=None)
 # 2-d array from tf.square(...) to
 # 1-d array
 # The key is `axis=[1]`
+#
+# tf.reshpe can replace tf.reduce_sum here. (Not tested yet)
 loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction), axis=[1]))
 
 train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
