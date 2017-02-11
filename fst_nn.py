@@ -2,6 +2,7 @@
 
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 def add_layer(inputs, in_size, out_size, activation_funciton=None):
@@ -43,6 +44,12 @@ train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 init = tf.global_variables_initializer()
 
 
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+ax.scatter(x_data, y_data)
+plt.ion()
+plt.show()
+
 with tf.Session() as sess:
     sess.run(init)
     for i in range(1000):
@@ -50,6 +57,22 @@ with tf.Session() as sess:
         if i % 50 == 0:
             print(sess.run(loss, feed_dict={xs: x_data, ys: y_data}))
 
+            # Visualize
+            try:
+                ax.lines.remove(lines[0])
+            except Exception:
+                pass
+
+            prediction_value = sess.run(prediction, feed_dict={xs: x_data})
+            lines = ax.plot(x_data, prediction_value, 'r-', lw=5)
+            # print('#### type(lines)', type(lines))
+            # print('#### type(ax)', type(ax))
+            # print('#### dir(ax)', dir(ax))
+            # print('#### type(ax.lines)', type(ax.lines))
+            # for each in lines:
+            #     print('###### type(each)', type(each))
+            plt.pause(0.1)
+
     # Check some intermediate result
-    print(sess.run(tf.square(ys - prediction), feed_dict={xs: x_data, ys: y_data}))
-    print(sess.run(tf.reduce_sum(tf.square(ys - prediction), axis=[1]), feed_dict={xs: x_data, ys: y_data}))
+    # print(sess.run(tf.square(ys - prediction), feed_dict={xs: x_data, ys: y_data}))
+    # print(sess.run(tf.reduce_sum(tf.square(ys - prediction), axis=[1]), feed_dict={xs: x_data, ys: y_data}))
