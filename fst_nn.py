@@ -5,6 +5,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+class Vis:
+    def __init__(self, x_data, y_data):
+        self.__fig = plt.figure()
+        self.__ax = self.__fig.add_subplot(1, 1, 1)
+        self.__ax.scatter(x_data, y_data)
+        plt.ion()
+        plt.show()
+
+        self.__last_lines = []
+        pass
+
+    def update(self, x_data, y_predictions):
+        if self.__last_lines:
+            assert len(self.__last_lines) == 1
+            self.__ax.lines.remove(self.__last_lines[0])
+
+        self.__last_lines = self.__ax.plot(x_data, y_predictions, 'r-', lw=5)
+        pass
+
+    @staticmethod
+    def pause_a_tick():
+        plt.pause(0.1)
+        pass
+
+
 def add_layer(inputs, in_size, out_size, activation_funciton=None):
     Weights = tf.Variable(tf.random_normal([in_size, out_size]))
     biases = tf.Variable(tf.zeros([1, out_size])) + 0.1
@@ -43,12 +68,7 @@ train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
 init = tf.global_variables_initializer()
 
-
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
-ax.scatter(x_data, y_data)
-plt.ion()
-plt.show()
+vis = Vis(x_data, y_data)
 
 with tf.Session() as sess:
     sess.run(init)
@@ -57,21 +77,9 @@ with tf.Session() as sess:
         if i % 50 == 0:
             print(sess.run(loss, feed_dict={xs: x_data, ys: y_data}))
 
-            # Visualize
-            try:
-                ax.lines.remove(lines[0])
-            except Exception:
-                pass
-
             prediction_value = sess.run(prediction, feed_dict={xs: x_data})
-            lines = ax.plot(x_data, prediction_value, 'r-', lw=5)
-            # print('#### type(lines)', type(lines))
-            # print('#### type(ax)', type(ax))
-            # print('#### dir(ax)', dir(ax))
-            # print('#### type(ax.lines)', type(ax.lines))
-            # for each in lines:
-            #     print('###### type(each)', type(each))
-            plt.pause(0.1)
+            vis.update(x_data, prediction_value)
+            vis.pause_a_tick()
 
     # Check some intermediate result
     # print(sess.run(tf.square(ys - prediction), feed_dict={xs: x_data, ys: y_data}))
