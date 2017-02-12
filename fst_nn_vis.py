@@ -4,12 +4,17 @@ import tensorflow as tf
 import numpy as np
 
 
-def add_layer(inputs, in_size, out_size, activation_funciton=None):
-    with tf.name_scope('layer'):
+def add_layer(n_layer, inputs, in_size, out_size, activation_funciton=None):
+    layer_name = 'layer{}'.format(n_layer)
+    with tf.name_scope(layer_name):
         Weights = tf.Variable(tf.random_normal([in_size, out_size]), name='Weights')
+        tf.summary.histogram(name=Weights.name, values=Weights)
+
         # biases = tf.Variable(initial_value=tf.zeros([1, out_size])) + 0.1
         # I think the following biases code is more compact
         biases = tf.Variable(initial_value=tf.constant(value=0.1, dtype=tf.float32, shape=[1, out_size]), name='biases')
+        tf.summary.histogram(name=biases.name, values=biases)
+
         with tf.name_scope('Wx_plus_b'):
             Wx_plus_b = tf.matmul(inputs, Weights) + biases
 
@@ -18,6 +23,7 @@ def add_layer(inputs, in_size, out_size, activation_funciton=None):
         else:
             outputs = activation_funciton(Wx_plus_b)
 
+        tf.summary.histogram(name='outputs', values=outputs)
         return outputs
 
 
@@ -33,8 +39,8 @@ with tf.name_scope('inputs'):
     ys = tf.placeholder(tf.float32, [None, 1], name='y_input')
 
 # hidden layer
-l1 = add_layer(xs, 1, 10, activation_funciton=tf.nn.relu)
-prediction = add_layer(l1, 10, 1, activation_funciton=None)
+l1 = add_layer(1, xs, 1, 10, activation_funciton=tf.nn.relu)
+prediction = add_layer(2, l1, 10, 1, activation_funciton=None)
 
 with tf.name_scope('train'):
     with tf.name_scope('loss'):
@@ -45,14 +51,20 @@ with tf.name_scope('train'):
         #
         # tf.reshpe can replace tf.reduce_sum here. (Not tested yet)
         loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction), axis=[1]))
+        tf.summary.scalar(name='loss', tensor=loss)
 
     train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
 
 init = tf.global_variables_initializer()
 
+all_summ = tf.summary.merge_all()
+
 with tf.Session() as sess:
     writer = tf.summary.FileWriter('logs', sess.graph)
 
-    # sess.run(init)
-    # for i in range(1000):
-    #     sess.run(train_step, feed_dict={xs: x_data, ys: y_data})
+    sess.run(init)
+    for i in range(1000):
+        sess.run(train_step, feed_dict={xs: x_data, ys: y_data})
+        if i % 50 == 0:
+            result = sess.run(all_summ, feed_dict={xs: x_data, ys: y_data})
+            writer.add_summary(result, i)
