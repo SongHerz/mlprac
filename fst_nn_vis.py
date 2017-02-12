@@ -6,14 +6,17 @@ import numpy as np
 
 def add_layer(n_layer, inputs, in_size, out_size, activation_funciton=None):
     layer_name = 'layer{}'.format(n_layer)
-    with tf.name_scope(layer_name):
-        Weights = tf.Variable(tf.random_normal([in_size, out_size]), name='Weights')
-        tf.summary.histogram(name=Weights.name, values=Weights)
 
+    with tf.name_scope(layer_name):
+        w_name = 'Weights'
+        Weights = tf.Variable(tf.random_normal([in_size, out_size]), name=w_name)
+        tf.summary.histogram(name='/'.join(['hist', w_name]), values=Weights)
+
+        b_name = 'biases'
         # biases = tf.Variable(initial_value=tf.zeros([1, out_size])) + 0.1
         # I think the following biases code is more compact
-        biases = tf.Variable(initial_value=tf.constant(value=0.1, dtype=tf.float32, shape=[1, out_size]), name='biases')
-        tf.summary.histogram(name=biases.name, values=biases)
+        biases = tf.Variable(initial_value=tf.constant(value=0.1, dtype=tf.float32, shape=[1, out_size]), name='b_name')
+        tf.summary.histogram(name='/'.join(['hist', b_name]), values=biases)
 
         with tf.name_scope('Wx_plus_b'):
             Wx_plus_b = tf.matmul(inputs, Weights) + biases
@@ -23,7 +26,7 @@ def add_layer(n_layer, inputs, in_size, out_size, activation_funciton=None):
         else:
             outputs = activation_funciton(Wx_plus_b)
 
-        tf.summary.histogram(name='outputs', values=outputs)
+        tf.summary.histogram(name='/'.join(['hist', 'outputs']), values=outputs)
         return outputs
 
 
