@@ -23,7 +23,7 @@ def add_layer(inputs, in_size, out_size, activation_function=None):
 def compute_accuracy(sess, prediction, v_xs, v_ys):
     y_pre = sess.run(prediction, feed_dict={xs: v_xs})
     correct_prediction = tf.equal(tf.argmax(y_pre, 1), tf.argmax(v_ys, 1))
-    accuracy = tf.reduct_mean(tf.cast(correct_prediction, tf.float32))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
     result = sess.run(accuracy, feed_dict={xs: v_xs, ys: v_ys})
     return result
 
@@ -45,9 +45,10 @@ train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
-    for i in range(1000):
+    for i in range(4000):
         batch_xs, batch_ys = mnist.train.next_batch(100)
         sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys})
         if i % 50 == 0:
             print(compute_accuracy(
+                sess, prediction,
                 mnist.test.images, mnist.test.labels))
