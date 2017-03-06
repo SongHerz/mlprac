@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+
+# Another reference:
+# https://www.tensorflow.org/get_started/mnist/beginners
+
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 
@@ -36,8 +40,12 @@ ys = tf.placeholder(tf.float32, (None, OUT_SIZE))
 prediction = add_layer(xs, IN_SIZE, OUT_SIZE, activation_function=tf.nn.softmax)
 
 # loss
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction),
-                                              reduction_indices=[1]))
+# cross_entropy = tf.reduce_mean(-tf.reduce_sum(ys * tf.log(prediction),
+#                                                reduction_indices=[1]))
+# FIXME: It looks convergence speed is much slower with softmax_cross_entropy_with_logits
+# than the above manually write corssentropy
+cross_entropy = tf.reduce_mean(
+    tf.nn.softmax_cross_entropy_with_logits(labels=ys, logits=prediction))
 
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 
@@ -45,7 +53,7 @@ train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
-    for i in range(4000):
+    for i in range(8000):
         batch_xs, batch_ys = mnist.train.next_batch(100)
         sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys})
         if i % 50 == 0:
