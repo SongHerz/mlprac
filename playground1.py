@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# I use this script to play with some configurations.
+# It is interesting that with 2 fully connected layers, the prediction result is bad.
+# One layer can get 91% accuracy, but 2 will not exceed 58% with configurations I tried.
 
 # Another reference:
 # https://www.tensorflow.org/get_started/mnist/beginners
@@ -14,6 +17,7 @@ def add_layer(inputs, in_size, out_size, activation_function=None):
     biases = tf.Variable(tf.zeros([1, out_size]) + 0.1)
     biases = tf.Variable(tf.zeros([1, out_size]) + 0.1)
     Wx_plus_b = tf.matmul(inputs, Weights) + biases
+    Wx_plus_b = tf.nn.dropout(Wx_plus_b, 0.5)
     if activation_function is None:
         outputs = Wx_plus_b
     else:
@@ -41,13 +45,20 @@ def compute_accuracy(sess, prediction, v_xs, v_ys):
 
 
 IN_SIZE = 28 * 28
+INNER_SIZE = 28 * 28 * 8
 OUT_SIZE = 10
 xs = tf.placeholder(tf.float32, (None, IN_SIZE))
 ys = tf.placeholder(tf.float32, (None, OUT_SIZE))
 
-prediction = add_layer(xs, IN_SIZE, OUT_SIZE, activation_function=tf.nn.softmax)
+l1 = add_layer(xs, IN_SIZE, INNER_SIZE, activation_function=tf.nn.relu) #sigmoid) # None) #tf.nn.tanh)  # tf.nn.relu)
+prediction = add_layer(l1, INNER_SIZE, OUT_SIZE, activation_function=tf.nn.softmax)
+
 loss = get_loss(ys, prediction)
-train_step = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
+# train_step = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
+train_step = tf.train.AdamOptimizer(0.001).minimize(loss)
+# train_step = tf.train.AdamOptimizer(0.003).minimize(loss)
+# train_step = tf.train.AdadeltaOptimizer().minimize(loss)
+# train_step = tf.train.RMSPropOptimizer(0.8).minimize(loss)
 
 tf.summary.scalar(name='loss', tensor=loss)
 all_summ = tf.summary.merge_all()
@@ -61,13 +72,14 @@ with tf.Session() as sess:
     # If minst data does not exists, it will be downloaded automatically
     mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
-    for i in range(1000):
+    for i in range(20000):
         batch_xs, batch_ys = mnist.train.next_batch(100)
         sess.run(train_step, feed_dict={xs: batch_xs, ys: batch_ys})
-        if i % 50 == 0:
-            print(compute_accuracy(
-                sess, prediction,
-                mnist.test.images, mnist.test.labels))
+        if i % 200 == 0:
+            print('Step:', i,
+                  'Accuracy:', compute_accuracy(
+                      sess, prediction,
+                      mnist.test.images, mnist.test.labels))
 
             train_writer.add_summary(sess.run(all_summ, feed_dict={xs: batch_xs, ys: batch_ys}), i)
             test_writer.add_summary(sess.run(all_summ, feed_dict={xs: mnist.test.images, ys: mnist.test.labels}), i)
