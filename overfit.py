@@ -3,6 +3,11 @@
 
 
 # Reference: 莫烦 Tensorflow 17 dropout 解决 overfitting 问题
+# 具体的实现和视频的有点小不同
+
+# With 500 train steps:
+# 1. Without dropout, prediction accuracy is around 20%
+# 2. With dropout keep probability 0.5, prediction accuracy is over 97%
 
 import tensorflow as tf
 from sklearn.datasets import load_digits
