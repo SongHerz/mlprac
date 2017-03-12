@@ -6,14 +6,8 @@ Done: 莫烦 Tensorflow 13 优化器 optimizer
 Done: 莫烦 Tensorflow 14 Tensorboard 可视化好
 Done: 莫烦 Tensorflow 15 Tensorboard 可视化好
 Done: 莫烦 Tensorflow 16 Classification 分类学
+Done: 莫烦 Tensorflow 17 dropout 解决 overfitting 
 
-
-莫烦 Tensorflow 17 dropout 解决 overfitting 
-视频里是用的sklearn的dataset，我想先不用管sklearn，继续用tensorflow的MNIST数据集。
-可以做两个实验：
-1. 用classification.py的网络结构，看有没有overfitting.
-2. 用视频里的网络结构，看有没有overfitting.
-视频里的参数可以先用原始的，报错再调。
-tensorboard看的东西，也可以先只看scalar，如果报错再加histgram.
+莫烦 Tensorflow 18.1 CNN 卷积神经网络
 
 https://www.tensorflow.org/get_started/mnist/pros
