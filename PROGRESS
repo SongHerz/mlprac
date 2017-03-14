@@ -12,3 +12,10 @@ Done: 莫烦 Tensorflow 18.1 CNN 卷积神经网络
 莫烦 Tensorflow 18.2 CNN 卷积神经网络
 
 https://www.tensorflow.org/get_started/mnist/pros
+
+https://www.youtube.com/watch?v=SQ67NBCLV98
+这个视频讲CNN的，看起来不错，评论也不错。
+CNN设计背后的思想，VGG，Alex的实现，等有讨论也有code.
+教程里可视化了VGG的filter，也举了猴子大脑的例子，说filter比较像。
+实现两个CNN有一定的理解之后，再看一遍这个教程。
+也可以关注一下up主相关的其它教程，以及油管上其它相关教程。
